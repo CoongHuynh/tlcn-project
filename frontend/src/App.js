@@ -1,19 +1,50 @@
-import React from 'react';
-import { Provider } from 'react-redux';
-import { store } from './store';
-import Dashboard from './features/dashboard/Dashboard';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BaseLayout } from "./components";
+import { Dashboard, PageNotFound } from "./screens";
+import { ThemeProvider } from "styled-components";
+import { theme } from "./styles/theme/theme";
+import { GlobalStyles } from "./styles/global/GlobalStyles";
+
+const routes = [
+  {
+    path: "/",
+    element: <BaseLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Dashboard />,
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <PageNotFound />,
+  },
+];
 
 function App() {
   return (
-    <Provider store={store}>
-      <div className="App">
-        <header className="App-header">
-          <h1>Welcome to the Dashboard</h1>
-        </header>
-        <Dashboard />
-      </div>
-    </Provider>
+    <>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <GlobalStyles />
+          <Routes>
+            {routes.map((route, index) => (
+              <Route key={index} path={route.path} element={route.element}>
+                {route.children &&
+                  route.children.map((childRoute, childIndex) => (
+                    <Route
+                      key={childIndex}
+                      path={childRoute.path}
+                      element={childRoute.element}
+                    />
+                  ))}
+              </Route>
+            ))}
+          </Routes>
+        </Router>
+      </ThemeProvider>
+    </>
   );
 }
 
