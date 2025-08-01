@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../store/slices/authSlice'
+import RoleBadge from '../components/RoleBadge'
 import {
   Clock,
   Calendar,
@@ -26,26 +27,35 @@ const DashboardLayout = () => {
       href: '/dashboard/timesheet',
       icon: Clock,
       current: location.pathname === '/dashboard/timesheet',
+      roles: ['admin', 'manager', 'employee'],
     },
     {
       name: 'Leave Management',
       href: '/dashboard/leave',
       icon: Calendar,
       current: location.pathname === '/dashboard/leave',
+      roles: ['admin', 'manager', 'employee'],
     },
     {
       name: 'Admin Timesheet',
       href: '/dashboard/admin/timesheet',
       icon: Users,
       current: location.pathname === '/dashboard/admin/timesheet',
+      roles: ['admin', 'manager'],
     },
     {
       name: 'Admin Leave',
       href: '/dashboard/admin/leave',
       icon: Settings,
       current: location.pathname === '/dashboard/admin/leave',
+      roles: ['admin', 'manager'],
     },
   ]
+
+  // Lọc navigation theo role của user
+  const filteredNavigation = navigation.filter(item => 
+    item.roles.includes(user?.role || 'employee')
+  )
 
   const handleLogout = () => {
     dispatch(logout())
@@ -71,7 +81,7 @@ const DashboardLayout = () => {
             </button>
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => (
+            {filteredNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -95,6 +105,7 @@ const DashboardLayout = () => {
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-700">{user?.name}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
+                {user?.role && <div className="mt-1"><RoleBadge role={user.role} /></div>}
               </div>
             </div>
             <button
@@ -116,7 +127,7 @@ const DashboardLayout = () => {
             <span className="ml-2 text-xl font-bold text-gray-900">TimeTracker</span>
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => (
+            {filteredNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -139,6 +150,7 @@ const DashboardLayout = () => {
               <div className="ml-3">
                 <p className="text-sm font-medium text-gray-700">{user?.name}</p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
+                {user?.role && <div className="mt-1"><RoleBadge role={user.role} /></div>}
               </div>
             </div>
             <button

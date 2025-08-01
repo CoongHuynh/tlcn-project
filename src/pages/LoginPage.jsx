@@ -13,7 +13,7 @@ const LoginPage = () => {
   
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { isLoading, error } = useSelector((state) => state.auth)
+  const { isLoading, error, users } = useSelector((state) => state.auth)
 
   const handleChange = (e) => {
     setFormData({
@@ -31,18 +31,21 @@ const LoginPage = () => {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Mock user data
-      const user = {
-        id: 1,
-        name: 'John Doe',
-        email: formData.email,
-        role: 'admin',
-      }
+      // Tìm user trong mock data
+      const user = users.find(u => 
+        u.email === formData.email && u.password === formData.password
+      )
       
-      dispatch(loginSuccess(user))
-      navigate('/dashboard/timesheet')
+      if (user) {
+        // Loại bỏ password trước khi lưu vào state
+        const { password, ...userWithoutPassword } = user
+        dispatch(loginSuccess(userWithoutPassword))
+        navigate('/dashboard/timesheet')
+      } else {
+        dispatch(loginFailure('Invalid email or password'))
+      }
     } catch (error) {
-      dispatch(loginFailure('Invalid credentials'))
+      dispatch(loginFailure('Login failed. Please try again.'))
     }
   }
 
@@ -161,8 +164,10 @@ const LoginPage = () => {
               </div>
             </div>
             <div className="mt-4 text-center text-sm text-gray-600">
-              <p>Email: admin@example.com</p>
-              <p>Password: password123</p>
+              <p><strong>Admin:</strong> admin@example.com</p>
+              <p><strong>Manager:</strong> manager@example.com</p>
+              <p><strong>Employee:</strong> employee@example.com</p>
+              <p><strong>Password:</strong> password123</p>
             </div>
           </div>
         </div>

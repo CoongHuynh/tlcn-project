@@ -7,6 +7,7 @@ import LeavePage from '../pages/LeavePage'
 import AdminTimesheetPage from '../pages/AdminTimesheetPage'
 import AdminLeavePage from '../pages/AdminLeavePage'
 import ProtectedRoute from './ProtectedRoute'
+import RoleBasedRoute from './RoleBasedRoute'
 
 export const router = createBrowserRouter([
   {
@@ -35,11 +36,19 @@ export const router = createBrowserRouter([
       },
       {
         path: 'admin/timesheet',
-        element: <AdminTimesheetPage />,
+        element: (
+          <RoleBasedRoute allowedRoles={['admin', 'manager']}>
+            <AdminTimesheetPage />
+          </RoleBasedRoute>
+        ),
       },
       {
         path: 'admin/leave',
-        element: <AdminLeavePage />,
+        element: (
+          <RoleBasedRoute allowedRoles={['admin', 'manager']}>
+            <AdminLeavePage />
+          </RoleBasedRoute>
+        ),
       },
     ],
   },
