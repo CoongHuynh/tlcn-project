@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { logout } from '../store/slices/authSlice'
-import RoleBadge from '../components/RoleBadge'
+import { useState } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../store/slices/authSlice";
+import RoleBadge from "../components/RoleBadge";
 import {
   Clock,
   Calendar,
@@ -12,66 +12,75 @@ import {
   Menu,
   X,
   User,
-} from 'lucide-react'
+} from "lucide-react";
 
 const DashboardLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
-  const { user } = useSelector((state) => state.auth)
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   const navigation = [
     {
-      name: 'Timesheet',
-      href: '/dashboard/timesheet',
+      name: "Timesheet",
+      href: "/dashboard/timesheet",
       icon: Clock,
-      current: location.pathname === '/dashboard/timesheet',
-      roles: ['admin', 'manager', 'employee'],
+      current: location.pathname === "/dashboard/timesheet",
+      roles: ["admin", "manager", "employee"],
     },
     {
-      name: 'Leave Management',
-      href: '/dashboard/leave',
+      name: "Leave Management",
+      href: "/dashboard/leave",
       icon: Calendar,
-      current: location.pathname === '/dashboard/leave',
-      roles: ['admin', 'manager', 'employee'],
+      current: location.pathname === "/dashboard/leave",
+      roles: ["admin", "manager", "employee"],
     },
     {
-      name: 'Admin Timesheet',
-      href: '/dashboard/admin/timesheet',
+      name: "Admin Timesheet",
+      href: "/dashboard/admin/timesheet",
       icon: Users,
-      current: location.pathname === '/dashboard/admin/timesheet',
-      roles: ['admin', 'manager'],
+      current: location.pathname === "/dashboard/admin/timesheet",
+      roles: ["admin", "manager"],
     },
     {
-      name: 'Admin Leave',
-      href: '/dashboard/admin/leave',
+      name: "Admin Leave",
+      href: "/dashboard/admin/leave",
       icon: Settings,
-      current: location.pathname === '/dashboard/admin/leave',
-      roles: ['admin', 'manager'],
+      current: location.pathname === "/dashboard/admin/leave",
+      roles: ["admin", "manager"],
     },
-  ]
+  ];
 
   // Lọc navigation theo role của user
-  const filteredNavigation = navigation.filter(item => 
-    item.roles.includes(user?.role || 'employee')
-  )
+  const filteredNavigation = navigation.filter((item) =>
+    item.roles.includes(user?.role || "employee")
+  );
 
   const handleLogout = () => {
-    dispatch(logout())
-    navigate('/login')
-  }
+    dispatch(logout());
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
+      <div
+        className={`fixed inset-0 z-50 lg:hidden ${
+          sidebarOpen ? "block" : "hidden"
+        }`}
+      >
+        <div
+          className="fixed inset-0 bg-gray-600 bg-opacity-75"
+          onClick={() => setSidebarOpen(false)}
+        />
         <div className="relative flex w-full max-w-xs flex-1 flex-col bg-white">
           <div className="flex h-16 items-center justify-between px-4">
             <div className="flex items-center">
               <Clock className="h-8 w-8 text-primary-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">TimeTracker</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">
+                TimeTracker
+              </span>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -87,8 +96,8 @@ const DashboardLayout = () => {
                 to={item.href}
                 className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
                   item.current
-                    ? 'bg-primary-100 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? "bg-primary-100 text-primary-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
                 onClick={() => setSidebarOpen(false)}
               >
@@ -103,9 +112,15 @@ const DashboardLayout = () => {
                 <User className="h-4 w-4 text-primary-600" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-700">{user?.name}</p>
+                <p className="text-sm font-medium text-gray-700">
+                  {user?.name}
+                </p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
-                {user?.role && <div className="mt-1"><RoleBadge role={user.role} /></div>}
+                {user?.role && (
+                  <div className="mt-1">
+                    <RoleBadge role={user.role} />
+                  </div>
+                )}
               </div>
             </div>
             <button
@@ -124,7 +139,9 @@ const DashboardLayout = () => {
         <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
           <div className="flex h-16 items-center px-4">
             <Clock className="h-8 w-8 text-primary-600" />
-            <span className="ml-2 text-xl font-bold text-gray-900">TimeTracker</span>
+            <span className="ml-2 text-xl font-bold text-gray-900">
+              TimeTracker
+            </span>
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
             {filteredNavigation.map((item) => (
@@ -133,8 +150,8 @@ const DashboardLayout = () => {
                 to={item.href}
                 className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
                   item.current
-                    ? 'bg-primary-100 text-primary-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? "bg-primary-100 text-primary-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 }`}
               >
                 <item.icon className="mr-3 h-5 w-5" />
@@ -148,9 +165,15 @@ const DashboardLayout = () => {
                 <User className="h-4 w-4 text-primary-600" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-700">{user?.name}</p>
+                <p className="text-sm font-medium text-gray-700">
+                  {user?.name}
+                </p>
                 <p className="text-xs text-gray-500">{user?.email}</p>
-                {user?.role && <div className="mt-1"><RoleBadge role={user.role} /></div>}
+                {user?.role && (
+                  <div className="mt-1">
+                    <RoleBadge role={user.role} />
+                  </div>
+                )}
               </div>
             </div>
             <button
@@ -186,7 +209,7 @@ const DashboardLayout = () => {
         </main>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardLayout 
+export default DashboardLayout;

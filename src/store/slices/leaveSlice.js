@@ -1,61 +1,69 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   leaves: [],
   currentLeave: null,
   isLoading: false,
   error: null,
-}
+};
 
 const leaveSlice = createSlice({
-  name: 'leave',
+  name: "leave",
   initialState,
   reducers: {
     fetchLeavesStart: (state) => {
-      state.isLoading = true
-      state.error = null
+      state.isLoading = true;
+      state.error = null;
     },
     fetchLeavesSuccess: (state, action) => {
-      state.isLoading = false
-      state.leaves = action.payload
-      state.error = null
+      state.isLoading = false;
+      state.leaves = action.payload;
+      state.error = null;
     },
     fetchLeavesFailure: (state, action) => {
-      state.isLoading = false
-      state.error = action.payload
+      state.isLoading = false;
+      state.error = action.payload;
     },
     addLeave: (state, action) => {
-      state.leaves.push(action.payload)
+      state.leaves.push(action.payload);
     },
     updateLeave: (state, action) => {
-      const index = state.leaves.findIndex(leave => leave.id === action.payload.id)
+      const index = state.leaves.findIndex(
+        (leave) => leave.id === action.payload.id
+      );
       if (index !== -1) {
-        state.leaves[index] = action.payload
+        state.leaves[index] = action.payload;
       }
     },
     deleteLeave: (state, action) => {
-      state.leaves = state.leaves.filter(leave => leave.id !== action.payload)
+      state.leaves = state.leaves.filter(
+        (leave) => leave.id !== action.payload
+      );
     },
     setCurrentLeave: (state, action) => {
-      state.currentLeave = action.payload
+      state.currentLeave = action.payload;
     },
     approveLeave: (state, action) => {
-      const index = state.leaves.findIndex(leave => leave.id === action.payload)
+      const index = state.leaves.findIndex(
+        (leave) => leave.id === action.payload
+      );
       if (index !== -1) {
-        state.leaves[index].status = 'approved'
+        state.leaves[index].status = "approved";
       }
     },
     rejectLeave: (state, action) => {
-      const index = state.leaves.findIndex(leave => leave.id === action.payload)
+      const index = state.leaves.findIndex(
+        (leave) => leave.id === action.payload
+      );
       if (index !== -1) {
-        state.leaves[index].status = 'rejected'
+        state.leaves[index].status = "rejected";
       }
     },
     clearError: (state) => {
-      state.error = null
+      state.error = null;
     },
   },
-})
+});
 
 export const {
   fetchLeavesStart,
@@ -68,6 +76,6 @@ export const {
   approveLeave,
   rejectLeave,
   clearError,
-} = leaveSlice.actions
+} = leaveSlice.actions;
 
-export default leaveSlice.reducer 
+export default leaveSlice.reducer;

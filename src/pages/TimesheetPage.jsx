@@ -1,220 +1,210 @@
-import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { addTimesheet } from '../store/slices/timesheetSlice'
-import { Clock, Plus, Calendar } from 'lucide-react'
+import { useState } from "react";
+import { format } from "date-fns";
+import {
+  Plus,
+  Save,
+  Download,
+  Calendar,
+  Clock,
+  Users,
+  FileText,
+} from "lucide-react";
+import { useTimesheet } from "../hooks/useTimesheet";
+import HandsontableTimesheet from "../components/HandsontableTimesheet";
 
 const TimesheetPage = () => {
-  const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
-    startTime: '',
-    endTime: '',
-    description: '',
-  })
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const {
+    clients,
+    tasks,
+    daysOfMonth,
+    timesheetData,
+    addRow,
+    deleteRow,
+    updateDailyHours,
+    updateRow,
+    copyRow,
+    getClientName,
+    getTaskName,
+    getTotalHoursForDate,
+    getGrandTotal,
+  } = useTimesheet(currentDate);
 
-  const dispatch = useDispatch()
-  const { timesheets, isLoading } = useSelector((state) => state.timesheet)
+  const [selectedMonth, setSelectedMonth] = useState(
+    format(currentDate, "yyyy-MM")
+  );
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
-  }
+  const handleMonthChange = (e) => {
+    const [year, month] = e.target.value.split("-");
+    const newDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+    setCurrentDate(newDate);
+    setSelectedMonth(e.target.value);
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    
-    const newTimesheet = {
-      id: Date.now(),
-      ...formData,
-      totalHours: calculateHours(formData.startTime, formData.endTime),
-      status: 'pending',
-    }
-    
-    dispatch(addTimesheet(newTimesheet))
-    
-    // Reset form
-    setFormData({
-      date: new Date().toISOString().split('T')[0],
-      startTime: '',
-      endTime: '',
-      description: '',
-    })
-  }
+  const handleSave = () => {
+    // In real app, this would save to API
+    console.log("Saving timesheet data:", timesheetData);
+    alert("Timesheet saved successfully!");
+  };
 
-  const calculateHours = (start, end) => {
-    if (!start || !end) return 0
-    
-    const startTime = new Date(`2000-01-01T${start}`)
-    const endTime = new Date(`2000-01-01T${end}`)
-    
-    const diffMs = endTime - startTime
-    const diffHours = diffMs / (1000 * 60 * 60)
-    
-    return Math.max(0, diffHours)
-  }
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800'
-      case 'rejected':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-yellow-100 text-yellow-800'
-    }
-  }
+  const handleExport = () => {
+    // In real app, this would export to Excel/CSV
+    console.log("Exporting timesheet data:", timesheetData);
+    alert("Timesheet exported successfully!");
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Timesheet</h1>
-          <p className="text-gray-600">Track your daily work hours</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Calendar className="h-5 w-5 text-gray-400" />
-          <span className="text-sm text-gray-500">
-            {new Date().toLocaleDateString()}
-          </span>
+    <div className="min-h-screen bg-light-background-color">
+      {/* Header */}
+      <div className="bg-primary text-light p-6">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-accent rounded-xl">
+                <Calendar className="w-6 h-6 text-dark" />
+              </div>
+              <div>
+                <h1 className="text-section-header text-light">Timesheet</h1>
+                <p className="text-body text-accent3">
+                  Track your work hours and project activities
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handleSave}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <Save className="w-4 h-4" />
+                Save
+              </button>
+              <button
+                onClick={handleExport}
+                className="btn-primary flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Add Timesheet Form */}
-        <div className="lg:col-span-1">
-          <div className="card">
-            <div className="flex items-center mb-4">
-              <Plus className="h-5 w-5 text-primary-600 mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Add Entry</h2>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
+      {/* Main Content */}
+      <div className="container mx-auto p-6">
+        {/* Controls */}
+        <div className="bg-light rounded-xl p-6 mb-6 shadow-md">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-accent" />
+                <label htmlFor="month-select" className="text-body font-medium">
+                  Select Month:
                 </label>
                 <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="input-field"
-                  required
+                  id="month-select"
+                  type="month"
+                  value={selectedMonth}
+                  onChange={handleMonthChange}
+                  className="p-2 border border-light-border-color rounded-md bg-light text-dark focus:outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    name="startTime"
-                    value={formData.startTime}
-                    onChange={handleChange}
-                    className="input-field"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    name="endTime"
-                    value={formData.endTime}
-                    onChange={handleChange}
-                    className="input-field"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  rows="3"
-                  className="input-field"
-                  placeholder="What did you work on?"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="btn-primary w-full"
-              >
-                {isLoading ? 'Adding...' : 'Add Entry'}
-              </button>
-            </form>
+            </div>
+            <button
+              onClick={addRow}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Row
+            </button>
           </div>
         </div>
 
-        {/* Timesheet List */}
-        <div className="lg:col-span-2">
-          <div className="card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Entries</h2>
-              <div className="text-sm text-gray-500">
-                Total: {timesheets.length} entries
-              </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="stats-card">
+            <div className="flex items-center gap-3 mb-2">
+              <Users className="w-5 h-5 text-accent" />
+              <span className="text-body-small text-light">Total Clients</span>
             </div>
+            <div className="text-section-header text-light">
+              {timesheetData.length}
+            </div>
+          </div>
+          <div className="stats-card">
+            <div className="flex items-center gap-3 mb-2">
+              <FileText className="w-5 h-5 text-accent" />
+              <span className="text-body-small text-light">Total Tasks</span>
+            </div>
+            <div className="text-section-header text-light">
+              {timesheetData.length}
+            </div>
+          </div>
+          <div className="stats-card">
+            <div className="flex items-center gap-3 mb-2">
+              <Clock className="w-5 h-5 text-accent" />
+              <span className="text-body-small text-light">Total Hours</span>
+            </div>
+            <div className="text-section-header text-light">
+              {getGrandTotal()}
+            </div>
+          </div>
+          <div className="stats-card">
+            <div className="flex items-center gap-3 mb-2">
+              <Calendar className="w-5 h-5 text-accent" />
+              <span className="text-body-small text-light">Days in Month</span>
+            </div>
+            <div className="text-section-header text-light">
+              {daysOfMonth.length}
+            </div>
+          </div>
+        </div>
 
-            {timesheets.length === 0 ? (
-              <div className="text-center py-8">
-                <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No timesheet entries yet</p>
-                <p className="text-sm text-gray-400">Add your first entry above</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {timesheets.map((entry) => (
-                  <div
-                    key={entry.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
-                          <Clock className="h-5 w-5 text-primary-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {new Date(entry.date).toLocaleDateString()}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {entry.startTime} - {entry.endTime} ({entry.totalHours.toFixed(1)}h)
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(entry.status)}`}>
-                          {entry.status}
-                        </span>
-                      </div>
-                    </div>
-                    {entry.description && (
-                      <p className="text-sm text-gray-600 mt-2 ml-8">
-                        {entry.description}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Handsontable Timesheet */}
+        <HandsontableTimesheet
+          daysOfMonth={daysOfMonth}
+          timesheetData={timesheetData}
+          clients={clients}
+          tasks={tasks}
+          updateRow={updateRow}
+          updateDailyHours={updateDailyHours}
+          copyRow={copyRow}
+          deleteRow={deleteRow}
+          getTotalHoursForDate={getTotalHoursForDate}
+          getGrandTotal={getGrandTotal}
+        />
+
+        {/* Instructions */}
+        <div className="mt-6 bg-light rounded-xl p-6 shadow-md">
+          <h3 className="text-sub-header text-dark mb-4">Instructions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-body text-gray">
+            <div>
+              <h4 className="font-semibold text-dark mb-2">How to use:</h4>
+              <ul className="space-y-1">
+                <li>• Select month to view different periods</li>
+                <li>• Choose client and task for each row</li>
+                <li>• Enter hours for each day (0-24, 0.5 increments)</li>
+                <li>• Weekend columns are highlighted in orange</li>
+                <li>• Use copy button to duplicate rows</li>
+                <li>• Total hours are calculated automatically</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-dark mb-2">Features:</h4>
+              <ul className="space-y-1">
+                <li>• Excel-like functionality</li>
+                <li>• Copy and delete rows</li>
+                <li>• Automatic calculations</li>
+                <li>• Weekend highlighting</li>
+                <li>• Responsive design</li>
+                <li>• Save and export options</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TimesheetPage 
+export default TimesheetPage;
